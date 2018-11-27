@@ -3,9 +3,13 @@ module.exports = {
 
 	pluginName: "NativeLogs",
 
-	getLog:function(_nbLines,_bCopyToClipboard,successCB,failureCB){
-		cordova.exec(successCB, failureCB, this.pluginName,"getLog", [_nbLines,_bCopyToClipboard]);
-	}
+	getLog:function(maxLines,successCB,failureCB){
+		cordova.exec(successCB, failureCB, this.pluginName,"getLog", [maxLines]);
+	},
+
+  setLogLevel:function(logLevel,successCB,failureCB){
+		cordova.exec(successCB, failureCB, this.pluginName,"setLogLevel", [logLevel]);
+  }
 };
 
 
