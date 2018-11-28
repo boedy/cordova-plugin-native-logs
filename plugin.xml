@@ -24,6 +24,8 @@
     </config-file>
     <header-file src="src/ios/CDVNativeLogs.h" target-dir="cordova-plugin-native-logs" />
     <source-file src="src/ios/CDVNativeLogs.m" target-dir="cordova-plugin-native-logs" />
+    <header-file src="src/ios/CDVLogFormatter.h" target-dir="cordova-plugin-native-logs" />
+    <source-file src="src/ios/CDVLogFormatter.m" target-dir="cordova-plugin-native-logs" />
     <framework src="CocoaLumberjack" type="podspec" spec="~> 3.4.2" />
   </platform>
  

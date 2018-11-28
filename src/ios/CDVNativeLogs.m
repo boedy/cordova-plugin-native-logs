@@ -15,6 +15,8 @@ static DDLogLevel ddLogLevel = DDLogLevelDebug;
     self.fileLogger = [[DDFileLogger alloc] init]; // File Logger
     self.fileLogger.rollingFrequency = 60 * 60 * 24; // 24 hour rolling
     self.fileLogger.logFileManager.maximumNumberOfLogFiles = 7;
+    self.formatter = [[CDVLogFormatter alloc] init];
+    self.fileLogger.logFormatter = self.formatter;
     [DDLog addLogger:self.fileLogger];
 }
 
@@ -23,43 +25,62 @@ static DDLogLevel ddLogLevel = DDLogLevelDebug;
     return filePaths.count > 0 ? filePaths[0] : @"";
 }
 
+- (void) identify:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+      if (command.arguments.count != 1)
+      {
+          NSString* error = @"missing identity argument";
+          DDLogError(@"CDVNativeLogs: %@",error);
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          return ;
+      }
+      NSString *value = [command argumentAtIndex:0];
+      [self.formatter setIdentity:value];
+    }];
+}
+
 - (void) setLogLevel:(CDVInvokedUrlCommand *)command {
-    
-    if (command.arguments.count != 1)
-    {
-        NSString* error = @"missing logLevel argument";
-        DDLogError(@"CDVNativeLogs: %@",error);
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return ;
-    }
-    
-    NSString *value = [command argumentAtIndex:0];
-    DDLogLevel logLevel;
-    
-    if([value isEqualToString:@"info"]){
-        logLevel = DDLogLevelInfo;
-    }else if([value isEqualToString:@"verbose"]){
-        logLevel = DDLogLevelVerbose;
-    }else if([value isEqualToString:@"debug"]){
-        logLevel = DDLogLevelDebug;
-    }else if([value isEqualToString:@"error"]){
-        logLevel = DDLogLevelError;
-    }else if([value isEqualToString:@"warning"]){
-        logLevel = DDLogLevelWarning;
-    }else{
-        NSString* error = @"Invalid logLevel";
-        DDLogError(@"CDVNativeLogs: %@",error);
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return ;
-    }
-    
-    for ( NSString *class in [DDLog registeredClassNames])
-    {
-//        DDLogVerbose(@"Enable logs for class: %@", class);
-        [DDLog setLevel:logLevel forClassWithName:class];
-    }
+    [self.commandDelegate runInBackground:^{
+      if (command.arguments.count != 1)
+      {
+          NSString* error = @"missing logLevel argument";
+          DDLogError(@"CDVNativeLogs: %@",error);
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          return ;
+      }
+      
+      NSString *value = [command argumentAtIndex:0];
+      DDLogLevel logLevel;
+
+      if(![value isKindOfClass:[NSString class]]){
+          value = @"";
+      }
+      
+      if([value isEqualToString:@"info"]){
+          logLevel = DDLogLevelInfo;
+      }else if([value isEqualToString:@"verbose"]){
+          logLevel = DDLogLevelVerbose;
+      }else if([value isEqualToString:@"debug"]){
+          logLevel = DDLogLevelDebug;
+      }else if([value isEqualToString:@"error"]){
+          logLevel = DDLogLevelError;
+      }else if([value isEqualToString:@"warning"]){
+          logLevel = DDLogLevelWarning;
+      }else{
+          NSString* error = @"Invalid logLevel";
+          DDLogError(@"CDVNativeLogs: %@",error);
+          CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+          return ;
+      }
+      
+      for ( NSString *class in [DDLog registeredClassNames])
+      {
+          [DDLog setLevel:logLevel forClassWithName:class];
+      }
+    }];
 }
 
 - (void)getLog:(CDVInvokedUrlCommand*)command {
@@ -106,7 +127,6 @@ static DDLogLevel ddLogLevel = DDLogLevelDebug;
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
-
 
 
 @end

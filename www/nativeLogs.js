@@ -9,6 +9,10 @@ module.exports = {
 
   setLogLevel:function(logLevel,successCB,failureCB){
 		cordova.exec(successCB, failureCB, this.pluginName,"setLogLevel", [logLevel]);
+  },
+
+  identify:function(identity,successCB,failureCB){
+		cordova.exec(successCB, failureCB, this.pluginName,"identify", [identity]);
   }
 };
 
